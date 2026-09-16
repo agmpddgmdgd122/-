@@ -1,0 +1,40 @@
+cat << 'EOF' > ~/Desktop/setup.sh
+#!/bin/bash
+echo "=== チャレンジパッド脱獄スクリプト開始 ==="
+
+# 1. Homebrew確認 & インストール
+if ! command -v brew &> /dev/null; then
+    echo "Homebrewをインストールしています..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# 2. ADB確認 & インストール
+if ! command -v adb &> /dev/null; then
+    echo "ADBをインストールしています..."
+    brew install android-platform-tools
+fi
+
+# 3. Nova Launcherのダウンロード
+echo "Nova Launcherをダウンロード中..."
+curl -L -o ~/Desktop/nova.apk "https://image.winudf.com/v2/image1/Y29tLnRlc2xhY29pbHN3LmxhdW5jaGVyX3NjcmVlbl8wXzE1NjcwNjg5MDhfMDc3/APK/t_1567068908_1.apk"
+
+# 4. 接続待機
+echo "USBでチャレンジパッドを接続してください..."
+adb wait-for-device
+
+# 5. 強制インストール & 制限解除
+echo "Nova Launcherをインストール中..."
+adb install -r ~/Desktop/nova.apk
+
+echo "ベネッセの制限パッケージを無効化中..."
+adb shell pm disable-user com.benesse.dcha.allsetup
+adb shell pm disable-user com.benesse.dcha.setupwizard
+
+echo "Nova Launcherを起動します..."
+adb shell am start -n com.teslacoilsw.launcher/com.teslacoilsw.launcher.NovaLauncher
+
+echo "=== 完了しました！ ==="
+EOF
+
+chmod +x ~/Desktop/setup.sh
+~/Desktop/setup.sh
